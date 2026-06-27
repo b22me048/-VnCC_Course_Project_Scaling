@@ -1,0 +1,57 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: update-note-keda
+  namespace: default
+spec:
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 30  # Wait 30s (not 5m) before scaling down
+          policies:
+            - type: Pods
+              value: 1                    # Remove 1 pod at a time
+              periodSeconds: 15           # Every 15 seconds
+  scaleTargetRef:
+    name: update-note  # Replace with your Deployment name
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  pollingInterval: 5  # Check metrics every 15 seconds
+  cooldownPeriod: 10  # Wait for 300 seconds before scaling down
+  triggers:
+    # Request Rate (RPS)
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.default.svc.cluster.local:9090 
+        metricName: request_rate_rps
+        threshold: "10"  
+        query: sum(rate(flask_http_request_total{app="update-note"}[1m]))
+
+    # Response Time (95th Percentile)
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.default.svc.cluster.local:9090 
+        metricName: response_time_95th_percentile_seconds
+        threshold: "0.5"  # Scale when response time > 500ms
+        query: histogram_quantile(0.95, sum by (le, app) (rate(flask_http_request_duration_seconds_bucket{app="update-note"}[1m])))
+
+    # Error Rate (>5%)
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.default.svc.cluster.local:9090 
+        metricName: error_rate_percentage
+        threshold: "0.05"  # Scale when error rate > 5%
+        query: (sum by (app) (rate(flask_http_request_total{status=~"5..", app="update-note"}[1m])) / sum by (app) (rate(flask_http_request_total{app="update-note"}[1m]))) OR on() vector(0)
+
+    # CPU Utilization (>50%)
+    - type: cpu
+      metadata:
+        type: Utilization
+        value: "50"
+
+    # Memory Utilization (>50%)
+    - type: memory
+      metadata:
+        type: Utilization
+        value: "50"

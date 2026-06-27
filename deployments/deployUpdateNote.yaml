@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: update-note
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: update-note
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5002"
+      labels:
+        app: update-note
+    spec:
+      containers:
+      - name: update-note
+        image: armangupta/update-note-service:newlatest
+        ports:
+        - containerPort: 5002
+        resources:
+          limits:
+            cpu: 300m
+            memory: 1024Mi
+          requests:
+            cpu: 100m
+            memory: 512Mi

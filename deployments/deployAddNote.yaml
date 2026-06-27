@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: add-note
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: add-note
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5001"
+      labels:
+        app: add-note
+    spec:
+      containers:
+      - name: add-note
+        image: armangupta/add-note-service:newlatest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5001
+        resources:
+          limits:
+            cpu: 300m // 0.3v CPU
+            memory: 1024Mi // 1GB
+          requests:
+            cpu: 100m // 0.1vCPU
+            memory: 512Mi // 0.5GB

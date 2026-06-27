@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: get-note
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: get-note
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5004"
+      labels:
+        app: get-note
+    spec:
+      containers:
+      - name: get-note
+        image: armangupta/get-note-service:newlatest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5004
+        resources:
+          limits:
+            cpu: 300m
+            memory: 1024Mi
+          requests:
+            cpu: 100m
+            memory: 512Mi
