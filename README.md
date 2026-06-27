@@ -9,35 +9,6 @@ This guide explains how to deploy the Note-Taking microservices on **Minikube**,
 * **Observability:** Prometheus
 * **Autoscaling:** KEDA (ScaledObjects per microservice)
 
-## 📁 Repo Structure
-
-```
-.
-├── deployments/
-│   ├── add-note.yaml
-│   ├── update-note.yaml
-│   ├── delete-note.yaml
-│   └── get-note.yaml
-├── services/
-│   ├── add-note-service.yaml
-│   ├── update-note-service.yaml
-│   ├── delete-note-service.yaml
-│   └── get-note-service.yaml
-├── prometheus/
-│   ├── config-map.yaml
-│   ├── rbac.yaml
-│   ├── deployment.yaml
-│   └── service.yaml
-├── mysql-exporter.yaml
-├── mysql-exporter-service.yaml
-├── hpaAddNote.yaml
-├── hpaUpdateNote.yaml
-├── hpaDeleteNote.yaml
-├── hpaGetNote.yaml
-└── README.md
-```
-
-> ⚠️ **TODO:** This structure currently only includes the MySQL **exporter** (for Prometheus metrics), not the MySQL database itself. Add `mysql-deployment.yaml` and `mysql-service.yaml` (with a PVC for persistence) before relying on this for anything beyond local testing.
 
 ## ✅ Prerequisites
 
